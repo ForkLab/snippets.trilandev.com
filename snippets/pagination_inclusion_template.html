@@ -1,0 +1,38 @@
+# !title: Pagination template without duplicating pages
+# !date: 2013-01-14
+# !tags: Django, SEO
+# !author: Denis Veselov
+
+
+# Problem: if use standard pagination template in site appear 2 duplicate pages:
+# "/some/path/?page=1" duplicate "/some/path/" page
+
+
+{% load intellipages core %}
+
+
+{% if page_obj.has_other_pages %}
+    <div class="pages clear">
+        {% if page_obj.previous_page_number == 1 %}
+            <a href="{% if page_obj.has_previous %}{% query_string "" "page" %}{% else %}#?{% endif %}" class="prev{% if not page_obj.has_previous %} disabled{% endif %}">
+        {% else %}
+            <a href="{% if page_obj.has_previous %}{% query_string "page=page_obj.previous_page_number" "page" %}{% else %}#?{% endif %}" class="prev{% if not page_obj.has_previous %} disabled{% endif %}">
+        {% endif %}
+            <span>&nbsp;</span>
+        </a>
+        {% for p in page_obj|intellipages %}
+            {% if p %}
+                {% if p == 1 %}
+                    <a {% if p == page_obj.number %}href="#?" class="active"{% else %}href="{% query_string "" "page" %}"{% endif %}><span>{{ p }}</span></a>
+                {% else %}
+                    <a href="{% query_string "page=p" "page" %}"{% if p == page_obj.number %} class="active"{% endif %}><span>{{ p }}</span></a>
+                {% endif %}
+            {% else %}
+                <a>...</a>
+            {% endif %}
+        {% endfor %}
+        <a href="{% if page_obj.has_next %}{% query_string "page=page_obj.next_page_number" "page" %}{% else %}#?{% endif %}" class="next{% if not page_obj.has_next %} disabled{% endif %}">
+            <span>&nbsp;</span>
+        </a>
+    </div>
+{% endif %}
